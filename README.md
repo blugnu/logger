@@ -20,7 +20,7 @@ Such packages would provide a mechanism for "injecting" a logger exported by thi
 
 ## How It Works
 
-Despite the name, this `logger` package does not implement an actual logger, rather it provides a type that delegates logging calls to an _adapter_.  A consuming project will configure whatever logger it wishes and then pass that logger into a dependent package by supplying a logger from _this_ package along with an appropriate _adapter_.
+Despite the name, this `logger` package does not implement an actual logger, rather it provides a delegate that routes logging calls via an _adapter_ to a logger configured by an application/service.  A consuming project will configure whatever logger it wishes and then wrap that with an _adapter_ so that it may be injected into any modules or packages that support `logger`.
 
 Adapters are provided in this package for `logrus` and the standard `log` package.
 
