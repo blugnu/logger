@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"errors"
+	"reflect"
 	"testing"
 )
 
@@ -30,7 +31,7 @@ func (mock MockAdapter) WithField(name string, value any) Adapter {
 	return mock
 }
 
-func TestLoggerEmissions(t *testing.T) {
+func TestLogEmissions(t *testing.T) {
 	// ARRANGE
 	var (
 		exitFnWasCalled bool
@@ -65,7 +66,7 @@ func TestLoggerEmissions(t *testing.T) {
 		exitFnWasCalled = true
 	}
 
-	sut := Logger{Adapter: &MockAdapter{
+	sut := logger{Adapter: &MockAdapter{
 		emitLevel:       &emitLevel,
 		emitString:      &emitString,
 		emitCalled:      &emitCalled,
@@ -95,12 +96,12 @@ func TestLoggerEmissions(t *testing.T) {
 			{name: "error", fn: func(s string) { sut.Error(errors.New(s)) }, Level: Error, message: "test", callsExit: false},
 			{name: "errorf", fn: func(s string) { sut.Errorf("formatted: %s", errors.New(s)) }, Level: Error, message: "test", output: "formatted: test", callsExit: false},
 			{name: "fatal", fn: func(s string) { sut.Fatal(s) }, Level: Fatal, message: "test", callsExit: true},
-			{name: "fatalf", fn: func(s string) { sut.Fatalf("formatted: %s", s) }, Level: Fatal, message: "test", output: "formatted: test", callsExit: true},
+			{name: "fatalf", fn: func(s string) { sut.Fatalf("formatted: %s", errors.New(s)) }, Level: Fatal, message: "test", output: "formatted: test", callsExit: true},
 			{name: "fatalerror", fn: func(s string) { sut.FatalError(errors.New(s)) }, Level: Fatal, message: "test", callsExit: true},
 			{name: "withdecoration", fn: func(s string) {
 				od := enrichmentFuncs
 				defer func() { enrichmentFuncs = od }()
-				WithEnrichment(func(ctx context.Context, log *Logger) *Logger {
+				WithEnrichment(func(ctx context.Context, log LogEntry) LogEntry {
 					decoratorsCalled = true
 					return log
 				})
@@ -165,9 +166,9 @@ func TestLoggerEmissions(t *testing.T) {
 	})
 }
 
-func TestLoggerWithContext(t *testing.T) {
+func TestLogWithContext(t *testing.T) {
 	// ARRANGE
-	a := &Logger{Adapter: &NulAdapter{}}
+	a := &logger{Adapter: &NulAdapter{}}
 
 	// ACT
 	b := a.WithContext(context.Background())
@@ -182,9 +183,9 @@ func TestLoggerWithContext(t *testing.T) {
 	})
 }
 
-func TestLoggerWithField(t *testing.T) {
+func TestLogWithField(t *testing.T) {
 	// ARRANGE
-	a := &Logger{Adapter: &NulAdapter{}}
+	a := &logger{Adapter: &NulAdapter{}}
 
 	// ACT
 	b := a.WithField("field", "value")
@@ -197,4 +198,46 @@ func TestLoggerWithField(t *testing.T) {
 			t.Errorf("wanted %v, got %v", wanted, got)
 		}
 	})
+}
+
+func TestLogger_FromContext(t *testing.T) {
+	// ARRANGE
+	newEntryCalled := false
+
+	ctx := context.Background()
+	adapter := MockAdapter{
+		newEntryCalled: &newEntryCalled,
+	}
+	sut := &logger{ctx, adapter}
+
+	// ACT
+	log := sut.FromContext(ctx)
+
+	// ASSERT
+	wanted := &logger{ctx, adapter}
+	got := log
+	if !reflect.DeepEqual(wanted, got) {
+		t.Errorf("\nwanted %#v\ngot    %#v", wanted, got)
+	}
+}
+
+func TestLogger_NewEntry(t *testing.T) {
+	// ARRANGE
+	newEntryCalled := false
+
+	ctx := context.Background()
+	adapter := MockAdapter{
+		newEntryCalled: &newEntryCalled,
+	}
+	sut := &logger{ctx, adapter}
+
+	// ACT
+	log := sut.NewEntry()
+
+	// ASSERT
+	wanted := &logger{ctx, adapter}
+	got := log
+	if !reflect.DeepEqual(wanted, got) {
+		t.Errorf("\nwanted %#v\ngot    %#v", wanted, got)
+	}
 }

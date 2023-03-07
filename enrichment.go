@@ -2,7 +2,7 @@ package logger
 
 import "context"
 
-type EnrichmentFunc func(context.Context, *Logger) *Logger
+type EnrichmentFunc func(context.Context, LogEntry) LogEntry
 
 var enrichmentFuncs []EnrichmentFunc
 

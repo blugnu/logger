@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"reflect"
 	"testing"
 
 	log "github.com/blugnu/go-logspy"
@@ -64,5 +65,20 @@ func TestNulAdapter(t *testing.T) {
 				t.Errorf("\nwanted %q\ngot    %q", wanted, got)
 			}
 		})
+	}
+}
+
+func TestNul(t *testing.T) {
+	// ACT
+	result := Nul()
+
+	// ASSERT
+	wanted := &logger{
+		Context: nil,
+		Adapter: &NulAdapter{},
+	}
+	got := result
+	if !reflect.DeepEqual(wanted, got) {
+		t.Errorf("\nwanted %#v\ngot    %#v", wanted, got)
 	}
 }

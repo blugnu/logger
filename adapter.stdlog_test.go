@@ -3,16 +3,17 @@ package logger
 import (
 	"fmt"
 	stdlog "log"
+	"reflect"
 	"testing"
 
 	log "github.com/blugnu/go-logspy"
 )
 
-func TestLogAdapter(t *testing.T) {
+func TestStdLogAdapter(t *testing.T) {
 	// ARRANGE
 	stdlog.SetOutput(log.Sink())
 	stdlog.SetFlags(0) // clear all flags so that we can test only the output produced by LogAdapter
-	sut := &LogAdapter{}
+	sut := &StdLogAdapter{}
 
 	testcases := []struct {
 		name   string
@@ -56,7 +57,7 @@ func TestLogAdapterWithFields(t *testing.T) {
 	// ARRANGE
 	stdlog.SetOutput(log.Sink())
 	stdlog.SetFlags(0) // clear all flags so that we can test only the output produced by LogAdapter
-	adapter := &LogAdapter{}
+	adapter := &StdLogAdapter{}
 	sut := adapter.WithField("fieldname", "data")
 	sut = sut.WithField("name space", "da ta")
 
@@ -95,5 +96,20 @@ func TestLogAdapterWithFields(t *testing.T) {
 				t.Errorf("\nwanted %q\ngot    %q", wanted, got)
 			}
 		})
+	}
+}
+
+func TestUsingStdLog(t *testing.T) {
+	// ACT
+	result := UsingStdLog()
+
+	// ASSERT
+	wanted := &logger{
+		Context: nil,
+		Adapter: &StdLogAdapter{fields: map[string]any{}},
+	}
+	got := result
+	if !reflect.DeepEqual(wanted, got) {
+		t.Errorf("\nwanted %#v\ngot    %#v", wanted, got)
 	}
 }

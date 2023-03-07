@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -45,4 +47,11 @@ func (log *logrusEntryAdapter) NewEntry() Adapter {
 
 func (log *logrusEntryAdapter) WithField(name string, value any) Adapter {
 	return &logrusEntryAdapter{log.Entry.WithField(name, value)}
+}
+
+func UsingLogrus(ctx context.Context, log *logrus.Logger) Logger {
+	return &logger{
+		Context: ctx,
+		Adapter: &LogrusAdapter{log},
+	}
 }

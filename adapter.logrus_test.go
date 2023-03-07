@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	logrus "github.com/sirupsen/logrus"
@@ -144,5 +146,24 @@ func TestLogrusEntryAdapter(t *testing.T) {
 				t.Errorf("\nwanted %q\ngot    %q", wanted, got)
 			}
 		})
+	}
+}
+
+func TestUsingLogrus(t *testing.T) {
+	// ARRANGE
+	ctx := context.Background()
+	log := &logrus.Logger{}
+
+	// ACT
+	result := UsingLogrus(ctx, log)
+
+	// ASSERT
+	wanted := &logger{
+		Context: ctx,
+		Adapter: &LogrusAdapter{log},
+	}
+	got := result
+	if !reflect.DeepEqual(wanted, got) {
+		t.Errorf("\nwanted %#v\ngot    %#v", wanted, got)
 	}
 }

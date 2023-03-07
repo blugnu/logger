@@ -10,7 +10,7 @@ func TestDecorator(t *testing.T) {
 	oef := enrichmentFuncs
 	defer func() { enrichmentFuncs = oef }()
 
-	f := func(ctx context.Context, log *Logger) *Logger { return log }
+	f := func(ctx context.Context, log LogEntry) LogEntry { return log }
 
 	// ACT
 	if len(oef) != 0 {

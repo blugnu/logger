@@ -16,11 +16,11 @@
 
 A package that provides an adaptable logger implementation to be used by other re-usable modules that wish to emit logs using a logger supplied by the consuming project.
 
-Such packages would provide a mechanism for "injecting" a logger that is compatible with the `Logger` type exported by this package.  To avoid taking a direct dependency on `logger`, packages may employ an _interface_ type of their own, that is compatible with the `Logger` type of _this_ package.
+Such packages would provide a mechanism for "injecting" a logger exported by this package.  Automatic log enrichment (from `context`) can also be established by those modules implementing an `init()` function to register an enrichment func.
 
 ## How It Works
 
-Despite the name, this `logger` package does not implement an actual logger, rather it provides a type that delegates log emissions to an _adapter_.  A consuming project will configure whatever logger it wishes and then pass that logger into a dependent package by supplying a logger from _this_ package along with an appropriate _adapter_.
+Despite the name, this `logger` package does not implement an actual logger, rather it provides a type that delegates logging calls to an _adapter_.  A consuming project will configure whatever logger it wishes and then pass that logger into a dependent package by supplying a logger from _this_ package along with an appropriate _adapter_.
 
 Adapters are provided in this package for `logrus` and the standard `log` package.
 
