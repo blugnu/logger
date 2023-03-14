@@ -101,7 +101,7 @@ func TestLogEmissions(t *testing.T) {
 			{name: "withdecoration", fn: func(s string) {
 				od := enrichmentFuncs
 				defer func() { enrichmentFuncs = od }()
-				WithEnrichment(func(ctx context.Context, e Enricher) Enricher {
+				EnrichWith(func(ctx context.Context, e Enricher) Enricher {
 					enrichmentFuncsCalled = true
 					return e
 				})
