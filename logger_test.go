@@ -1,4 +1,4 @@
-package logger
+package unilog
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func TestLogEmissions(t *testing.T) {
 		newEntryCalled  bool
 		withFieldCalled bool
 
-		decoratorsCalled bool
+		enrichmentFuncsCalled bool
 	)
 	initSpies := func() {
 		exitFnWasCalled = false
@@ -55,7 +55,7 @@ func TestLogEmissions(t *testing.T) {
 		newEntryCalled = false
 		withFieldCalled = false
 
-		decoratorsCalled = false
+		enrichmentFuncsCalled = false
 	}
 
 	ofn := ExitFn
@@ -101,9 +101,9 @@ func TestLogEmissions(t *testing.T) {
 			{name: "withdecoration", fn: func(s string) {
 				od := enrichmentFuncs
 				defer func() { enrichmentFuncs = od }()
-				WithEnrichment(func(ctx context.Context, log LogEntry) LogEntry {
-					decoratorsCalled = true
-					return log
+				WithEnrichment(func(ctx context.Context, e Enricher) Enricher {
+					enrichmentFuncsCalled = true
+					return e
 				})
 				sut.Info(s)
 			}, Level: Info, message: "test", callsExit: false, callsDecorators: true},
@@ -137,7 +137,7 @@ func TestLogEmissions(t *testing.T) {
 
 				t.Run("calls decorators", func(t *testing.T) {
 					wanted := tc.callsDecorators
-					got := decoratorsCalled
+					got := enrichmentFuncsCalled
 					if wanted != got {
 						t.Errorf("wanted %v, got %v", wanted, got)
 					}
@@ -166,23 +166,6 @@ func TestLogEmissions(t *testing.T) {
 	})
 }
 
-func TestLogWithContext(t *testing.T) {
-	// ARRANGE
-	a := &logger{Adapter: &NulAdapter{}}
-
-	// ACT
-	b := a.WithContext(context.Background())
-
-	// ASSERT
-	t.Run("returns new logger", func(t *testing.T) {
-		wanted := true
-		got := a != b
-		if wanted != got {
-			t.Errorf("wanted %v, got %v", wanted, got)
-		}
-	})
-}
-
 func TestLogWithField(t *testing.T) {
 	// ARRANGE
 	a := &logger{Adapter: &NulAdapter{}}
@@ -200,7 +183,7 @@ func TestLogWithField(t *testing.T) {
 	})
 }
 
-func TestLogger_FromContext(t *testing.T) {
+func TestLogger_WithContext(t *testing.T) {
 	// ARRANGE
 	newEntryCalled := false
 
@@ -211,7 +194,7 @@ func TestLogger_FromContext(t *testing.T) {
 	sut := &logger{ctx, adapter}
 
 	// ACT
-	log := sut.FromContext(ctx)
+	log := sut.WithContext(ctx)
 
 	// ASSERT
 	wanted := &logger{ctx, adapter}

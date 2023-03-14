@@ -1,4 +1,4 @@
-package logger
+package unilog
 
 type NulAdapter struct{}
 
@@ -8,6 +8,8 @@ func (*NulAdapter) Emit(Level, string)                { noop() }
 func (nul *NulAdapter) NewEntry() Adapter             { return nul }
 func (nul *NulAdapter) WithField(string, any) Adapter { return nul }
 
+var nul = &logger{Adapter: &NulAdapter{}}
+
 func Nul() Logger {
-	return &logger{Adapter: &NulAdapter{}}
+	return nul
 }

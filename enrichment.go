@@ -1,8 +1,8 @@
-package logger
+package unilog
 
 import "context"
 
-type EnrichmentFunc func(context.Context, LogEntry) LogEntry
+type EnrichmentFunc func(context.Context, Enricher) Enricher
 
 var enrichmentFuncs []EnrichmentFunc
 

@@ -1,4 +1,4 @@
-package logger
+package unilog
 
 import (
 	"context"
@@ -10,7 +10,7 @@ func TestDecorator(t *testing.T) {
 	oef := enrichmentFuncs
 	defer func() { enrichmentFuncs = oef }()
 
-	f := func(ctx context.Context, log LogEntry) LogEntry { return log }
+	f := func(ctx context.Context, e Enricher) Enricher { return e }
 
 	// ACT
 	if len(oef) != 0 {
